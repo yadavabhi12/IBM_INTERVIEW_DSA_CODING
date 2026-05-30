@@ -1,5 +1,5 @@
 # 
-from singly_linked_list_reverse_print import SinglyLinkedListNode
+from LinkedList.singly_linked_list_reverse_print import SinglyLinkedListNode
 
 
 def mergeLists(head1, head2):
