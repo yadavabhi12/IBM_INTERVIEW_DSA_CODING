@@ -4,6 +4,7 @@
 #         self.val = val
 #         self.left = left
 #         self.right = right
+#  method
 
 class Solution:
     def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
