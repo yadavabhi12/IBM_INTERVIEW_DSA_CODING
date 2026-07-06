@@ -1,0 +1,95 @@
+Aap jis problem ki baat kar rahe ho (LeetCode 129: Sum Root to Leaf Numbers) uska parent pattern Tree DFS + Path Accumulation hai.
+
+Is problem ka core idea ye hai:
+
+current = current * 10 + node.val
+
+Yaani root se current node tak jo state ban rahi hai usko carry karke niche le jao.
+
+
+
+
+
+'👌👌👌❤️❤️❤️Parent Pattern: DFS with State Carrying
+
+Template:
+
+def dfs(node, state):
+    if node is None:
+        return
+
+    state = update(state, node)
+
+    if is_goal(node):
+        return answer_from(state)
+
+    dfs(node.left, state)
+    dfs(node.right, state)
+
+    👌👌👌❤️❤️❤️
+
+
+
+
+
+Isi template se bahut saari tree problems solve hoti hain.
+
+Related Problems
+Path Sum   👌👌👌❤️❤️❤️
+state = current_sum + node.val
+
+Leaf par check:
+
+current_sum == target
+Path Sum II    👌👌👌❤️❤️❤️
+
+State:
+
+path.append(node.val)
+
+Leaf par poora path store karna.
+
+Binary Tree Paths   👌👌👌❤️❤️❤️
+
+State:
+
+path + "->" + str(node.val)
+
+Leaf par string answer.    👌👌👌❤️❤️❤️
+
+Pseudo-Palindromic Paths in a Binary Tree
+
+State:
+
+digit_frequency
+
+Ya bitmask carry karte hain.
+
+Longest ZigZag Path in a Binary Tree     👌👌👌❤️❤️❤️
+
+State:
+
+direction
+length
+
+Carry karke DFS.
+
+Iska Generic Parent Socho
+
+Jaise DP mein:
+
+Fibonacci → parent pattern
+Climbing Stairs → Fibonacci variation
+House Robber → DP variation
+
+Waise trees mein:
+
+DFS Traversal
+    ↓
+DFS + Carry State
+    ↓
+Path Sum
+Binary Tree Paths
+Sum Root To Leaf Numbers
+Pseudo Palindromic Paths
+etc.
