@@ -1,8 +1,8 @@
-235. Lowest Common Ancestor of a Binary Search Tree
+# 235. Lowest Common Ancestor of a Binary Search Tree
 
 
 # first approach is to do a recursive traversal of the tree and check if the current node is the lowest common ancestor of the two given nodes. If it is, return the current node. If not, continue traversing the left and right subtrees.
-1. Recursive BST👌👌👌👌👌👌❤️❤️❤️
+# 1. Recursive BST👌👌👌👌👌👌❤️❤️❤️
 
 
 class Solution:
@@ -24,13 +24,13 @@ class Solution:
     
 
     
-Time: O(h)
-Space: O(h) recursion stack.
+# Time: O(h)
+# Space: O(h) recursion stack.
 
 
 
 
-    2. Iterative BST — recursion ke bina👍👍👍👍💕
+    # 2. Iterative BST — recursion ke bina👍👍👍👍💕
 
 # second approach is to do an iterative traversal of the tree and check if the current node is the lowest common ancestor of the two given nodes. If it is, return the current node. If not, continue traversing the left and right subtrees.
 class Solution:
@@ -60,11 +60,11 @@ Space = O(1)
 
 
 
-3. Normal Binary Tree LCA approach
+# 3. Normal Binary Tree LCA approach
 
-Agar humein pata hi na ho ki tree BST hai, tab values compare karke left/right decide nahi kar sakte.
+# Agar humein pata hi na ho ki tree BST hai, tab values compare karke left/right decide nahi kar sakte.
 
-Tab:
+
 
 class Solution:
     def lowestCommonAncestor(self, root, p, q):
@@ -86,10 +86,10 @@ class Solution:
 
         return right
 
-Isme potentially poora tree explore hota hai:
+# Isme potentially poora tree explore hota hai:
 
-Time  = O(n)
-Space = O(h)
+# Time  = O(n)
+# Space = O(h)
 
-Ye approach bahut important hai kyunki ye LeetCode 236 — LCA of Binary Tree mein use hoti hai.
+# Ye approach bahut important hai kyunki ye LeetCode 236 — LCA of Binary Tree mein use hoti hai.
 
