@@ -177,3 +177,100 @@ class Solution:
         self.connect(root.right)
 
         return root
+    
+
+
+
+
+
+
+
+
+
+    """👍👍👍👍👍👍❤️❤️❤️❤️😱😱😱😱
+
+
+    How to connect nodes in a perfect binary tree using recursion:
+
+    Example mein root 1 par:
+
+          1
+        /   \
+       2     3
+
+root.left.next = root.right
+
+2.next = 3
+
+       2 ----> 3
+
+Phir recursion 2 par aayi:
+
+       2 ----> 3
+      / \    / \
+     4   5  6   7
+
+Pehli line:
+
+root.left.next = root.right
+
+banayegi:
+
+4 ---> 5
+
+Ab important wali:
+
+if root.next:
+    root.right.next = root.next.left
+
+Currently:
+
+root       = 2
+root.right = 5
+root.next  = 3
+
+Aur:
+
+root.next.left = 3.left = 6
+
+Isliye:
+
+5.next = 6
+
+Result:
+
+4 ---> 5 ---> 6
+
+Jab recursion 3 par jayegi:
+
+6.next = 7
+
+Final:
+
+          1
+        /   
+       2 ------> 3
+      / \       / \
+     4 -> 5 -> 6 -> 7
+BFS vs Recursive
+
+Tumhara queue solution general binary tree mein bhi kaam kar sakta hai:
+
+BFS
+Time  = O(N)
+Space = O(N)
+
+Ye recursive solution:
+
+Time  = O(N)
+Space = O(log N) recursion stack
+
+Lekin important: ye particular recursive code perfect binary tree assume karta hai.
+
+Aur ek mast observation yaad rakho:
+
+left.next = right
+
+right.next = parent's next ka left
+    
+    """
