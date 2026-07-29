@@ -1,4 +1,3 @@
-# 1305. All Elements in Two Binary Search Trees
 
 # my first approach is to do an in-order traversal of both trees and store the elements in a list. Then, I can merge the two lists into a single sorted list.
 # Definition for a binary tree node.
