@@ -541,3 +541,86 @@ One Valid BST
 
 ===============================================================================
 """
+
+
+
+
+
+
+
+from typing import List, Optional
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def canMerge(self, trees: List[TreeNode]) -> Optional[TreeNode]:
+
+        # root value -> tree
+        rootMap = {}
+
+        # Count every value occurrence
+        indegree = {}
+
+        for root in trees:
+            rootMap[root.val] = root
+            indegree[root.val] = indegree.get(root.val, 0)
+
+            if root.left:
+                indegree[root.left.val] = indegree.get(root.left.val, 0) + 1
+
+            if root.right:
+                indegree[root.right.val] = indegree.get(root.right.val, 0) + 1
+
+        # Find unique root
+        root = None
+
+        for tree in trees:
+            if indegree[tree.val] == 0:
+                root = tree
+                break
+
+        if root is None:
+            return None
+
+        # DFS + Merge + BST Validation
+        def dfs(node, low, high):
+
+            if node is None:
+                return True
+
+            # BST validation
+            if node.val <= low or node.val >= high:
+                return False
+
+            # Merge if current node is a leaf
+            if node.left is None and node.right is None:
+
+                if node.val in rootMap and rootMap[node.val] != node:
+
+                    mergeTree = rootMap.pop(node.val)
+
+                    node.left = mergeTree.left
+                    node.right = mergeTree.right
+
+            return (
+                dfs(node.left, low, node.val)
+                and
+                dfs(node.right, node.val, high)
+            )
+
+        # Remove final root from map
+        rootMap.pop(root.val)
+
+        if not dfs(root, float("-inf"), float("inf")):
+            return None
+
+        # All trees must be merged
+        if rootMap:
+            return None
+
+        return root
