@@ -1,0 +1,1387 @@
+"""
+===============================================================================
+LeetCode 212 - Word Search II
+===============================================================================
+
+PROBLEM
+-------
+Given an m x n board of characters and a list of words, return all words
+that can be found in the board.
+
+A word can be constructed from letters of sequentially adjacent cells.
+
+Allowed movements:
+
+             UP
+              ↑
+              |
+        LEFT ← CELL → RIGHT
+              |
+              ↓
+            DOWN
+
+
+IMPORTANT RULES
+---------------
+1. You can move only UP, DOWN, LEFT, RIGHT.
+
+2. Diagonal movement is NOT allowed.
+
+3. A cell can be used only ONCE while constructing one word.
+
+4. We need to find ALL words from the given list.
+
+
+===============================================================================
+EXAMPLE
+===============================================================================
+
+board =
+
+[
+    ["o","a","a","n"],
+    ["e","t","a","e"],
+    ["i","h","k","r"],
+    ["i","f","l","v"]
+]
+
+words =
+
+["oath", "pea", "eat", "rain"]
+
+
+Possible:
+
+o → a → t → h
+
+Therefore:
+
+"oath"
+
+
+And:
+
+e → a → t
+
+Therefore:
+
+"eat"
+
+
+"pea" cannot be formed.
+
+"rain" cannot be formed.
+
+
+Answer:
+
+["oath", "eat"]
+
+
+===============================================================================
+WHY WORD SEARCH I IS NOT ENOUGH
+===============================================================================
+
+In Word Search I:
+
+We have ONE word.
+
+So:
+
+DFS(board, word)
+
+
+is enough.
+
+
+Here:
+
+words = [
+    "oath",
+    "pea",
+    "eat",
+    "rain",
+    ...
+]
+
+
+If we run Word Search I separately for every word:
+
+for word in words:
+    search(board, word)
+
+
+we repeatedly traverse the same board.
+
+
+This can become expensive.
+
+
+===============================================================================
+KEY IDEA
+===============================================================================
+
+We have MANY words.
+
+
+Instead of searching every word independently,
+
+combine all words into a:
+
+                    TRIE
+
+
+Trie allows us to check:
+
+"Can this current path form the beginning of ANY word?"
+
+in O(1) average character transition time.
+
+
+Then DFS explores the board and simultaneously walks through the Trie.
+
+
+===============================================================================
+BIG PICTURE
+===============================================================================
+
+                 WORDS
+                   |
+                   ↓
+                 TRIE
+                   |
+                   ↓
+              Board DFS
+                   |
+                   ↓
+        Follow Trie characters
+                   |
+             ┌─────┴─────┐
+             ↓           ↓
+          No Trie       Exists
+          character       |
+             ↓            ↓
+           STOP       Continue DFS
+                           |
+                           ↓
+                    Complete word?
+                       /       \
+                     YES       NO
+                      |         |
+                  add answer   continue      # not 
+
+
+===============================================================================
+TRIE
+===============================================================================
+
+Suppose:
+
+words =
+
+["oath", "eat", "rain"]
+
+
+Trie looks conceptually like:
+
+
+root
+ ├── o
+ │    └── a
+ │         └── t
+ │              └── h ⭐
+ │
+ ├── e
+ │    └── a
+ │         └── t ⭐
+ │
+ └── r
+      └── a
+           └── i
+                └── n ⭐
+
+
+⭐ = complete word
+
+
+===============================================================================
+WHY TRIE HELPS
+===============================================================================
+
+Suppose DFS path is:
+
+o → a → t
+
+
+Trie says:
+
+o → a → t exists.
+
+
+So we continue.
+
+
+Now suppose we try:
+
+o → a → t → x
+
+
+If Trie has no:
+
+t → x
+
+
+then we immediately stop that DFS branch.
+
+
+Without Trie, we would have to compare the current path against
+many different words.
+
+
+===============================================================================
+TRIE NODE
+===============================================================================
+
+Each Trie node needs:
+
+1. children
+   → next characters
+
+2. word
+   → complete word ending here
+
+
+Example:
+
+"oath"
+
+
+o
+↓
+a
+↓
+t
+↓
+h
+
+At h:
+
+node.word = "oath"
+
+
+This makes it easy to add the word to our result.
+
+
+===============================================================================
+TRIE IMPLEMENTATION
+===============================================================================
+"""
+
+class TrieNode:
+
+    def __init__(self):
+
+        self.children = {}
+
+        self.word = None
+
+
+"""
+===============================================================================
+BUILD TRIE
+===============================================================================
+"""
+
+class TrieNode:
+
+    def __init__(self):
+        self.children = {}
+        self.word = None
+
+
+def build_trie(words):
+
+    root = TrieNode()
+
+    for word in words:
+
+        node = root
+
+        for ch in word:
+
+            if ch not in node.children:
+                node.children[ch] = TrieNode()
+
+            node = node.children[ch]
+
+        node.word = word
+
+    return root
+
+
+"""
+===============================================================================
+MAIN SOLUTION - TRIE + DFS + BACKTRACKING ⭐⭐⭐
+===============================================================================
+"""
+
+class TrieNode:
+
+    def __init__(self):
+
+        self.children = {}
+
+        self.word = None
+
+
+class Solution:
+
+    def findWords(self, board, words):
+
+        root = TrieNode()
+
+        # ------------------------------------------------------------
+        # Build Trie
+        # ------------------------------------------------------------
+
+        for word in words:
+
+            node = root
+
+            for ch in word:
+
+                if ch not in node.children:
+                    node.children[ch] = TrieNode()
+
+                node = node.children[ch]
+
+            node.word = word
+
+
+        rows = len(board)
+        cols = len(board[0])
+
+        result = []
+
+
+        # ------------------------------------------------------------
+        # DFS
+        # ------------------------------------------------------------
+
+        def dfs(r, c, node):
+
+            # Boundary check
+            if r < 0 or r >= rows or c < 0 or c >= cols:
+                return
+
+
+            ch = board[r][c]
+
+
+            # Already visited
+            if ch == "#":
+                return
+
+
+            # Character doesn't exist in current Trie path
+            if ch not in node.children:
+                return
+
+
+            # Move inside Trie
+            next_node = node.children[ch]
+
+
+            # --------------------------------------------------------
+            # Complete word found
+            # --------------------------------------------------------
+
+            if next_node.word is not None:
+
+                result.append(next_node.word)
+
+                # Prevent finding the same word again
+                next_node.word = None
+
+
+            # Mark visited
+            board[r][c] = "#"
+
+
+            # --------------------------------------------------------
+            # Explore 4 directions
+            # --------------------------------------------------------
+
+            dfs(r + 1, c, next_node)  # Down
+            dfs(r - 1, c, next_node)  # Up
+            dfs(r, c + 1, next_node)  # Right
+            dfs(r, c - 1, next_node)  # Left
+
+
+            # Backtrack
+            board[r][c] = ch
+
+
+        # ------------------------------------------------------------
+        # Start DFS from every cell
+        # ------------------------------------------------------------
+
+        for r in range(rows):
+
+            for c in range(cols):
+
+                dfs(r, c, root)
+
+
+        return result
+
+
+"""
+===============================================================================
+DRY RUN
+===============================================================================
+
+board:
+
+o a a n
+e t a e
+i h k r
+i f l v
+
+
+words:
+
+["oath", "pea", "eat", "rain"]
+
+
+===============================================================================
+STEP 1 - BUILD TRIE
+===============================================================================
+
+Trie:
+
+root
+
+ ├── o
+ │    └── a
+ │         └── t
+ │              └── h -> "oath"
+ │
+ ├── p
+ │    └── e
+ │         └── a -> "pea"
+ │
+ ├── e
+ │    └── a
+ │         └── t -> "eat"
+ │
+ └── r
+      └── a
+           └── i
+                └── n -> "rain"
+
+
+===============================================================================
+STEP 2 - START DFS
+===============================================================================
+
+Start at:
+
+board[0][0] = 'o'
+
+
+Trie root has:
+
+'o'
+
+
+So:
+
+root
+ ↓
+ o
+
+
+Continue.
+
+
+Move right:
+
+'a'
+
+
+Trie:
+
+o
+↓
+a
+
+
+Continue.
+
+
+Move right:
+
+'a'
+
+
+But after:
+
+o → a
+
+there is no:
+
+a → a
+
+
+in the Trie.
+
+
+So immediately STOP.
+
+
+This is the power of Trie.
+
+
+===============================================================================
+FIND "oath"
+===============================================================================
+
+Start:
+
+o
+
+
+Move:
+
+o → a → t → h
+
+
+At 'h':
+
+Trie node contains:
+
+word = "oath"
+
+
+Therefore:
+
+result.append("oath")
+
+
+Result:
+
+["oath"]
+
+
+===============================================================================
+FIND "eat"
+===============================================================================
+
+Start at:
+
+e
+
+
+Then:
+
+e → a → t
+
+
+At t:
+
+word = "eat"
+
+
+Add:
+
+"eat"
+
+
+Result:
+
+["oath", "eat"]
+
+
+===============================================================================
+WHY next_node.word = None?
+===============================================================================
+
+Suppose:
+
+"eat"
+
+is found once.
+
+
+The DFS could potentially find the same word again
+using another path.
+
+
+But the answer should contain each word only once.
+
+
+So after finding it:
+
+next_node.word = None
+
+
+This means:
+
+"This word has already been added."
+
+
+Therefore we avoid duplicates.
+
+
+===============================================================================
+IMPORTANT BACKTRACKING
+===============================================================================
+
+Suppose:
+
+board[r][c] = "a"
+
+
+Before DFS:
+
+board[r][c] = "#"
+
+
+Now the cell cannot be reused in this path.
+
+
+After DFS:
+
+board[r][c] = "a"
+
+
+This restores the board.
+
+
+Pattern:
+
+        mark
+          ↓
+        explore
+          ↓
+        restore
+
+
+This is exactly the same backtracking pattern as:
+
+LeetCode 79 - Word Search.
+
+
+===============================================================================
+WORD SEARCH I vs WORD SEARCH II
+===============================================================================
+
+WORD SEARCH I:
+
+One word.
+
+Typical solution:
+
+DFS + Backtracking
+
+
+WORD SEARCH II:
+
+Many words.
+
+Typical solution:
+
+Trie + DFS + Backtracking
+
+
+Remember:
+
+ONE WORD
+    ↓
+DFS
+
+
+MANY WORDS
+    ↓
+TRIE + DFS
+
+
+===============================================================================
+WHY NOT RUN WORD SEARCH I FOR EVERY WORD?
+===============================================================================
+
+Simple solution:
+
+for word in words:
+
+    if exist(board, word):
+        result.append(word)
+
+
+This works conceptually.
+
+
+But if there are many words,
+we repeatedly traverse the board.
+
+
+For example:
+
+words:
+
+["apple", "app", "application", "apply", ...]
+
+
+They share prefixes.
+
+
+Trie stores the shared prefix:
+
+a → p → p
+
+
+only once.
+
+
+Therefore DFS can explore common prefixes together.
+
+
+===============================================================================
+TRIE SHARED PREFIX VISUALIZATION
+===============================================================================
+
+Words:
+
+"cat"
+"car"
+"care"
+
+
+Without Trie:
+
+cat
+car
+care
+
+Repeated prefix:
+
+c → a
+
+
+With Trie:
+
+
+        c
+        |
+        a
+        |
+        t → "cat"
+        |
+        r → "car"
+        |
+        e → "care"
+
+
+Shared prefixes are stored only once.
+
+
+===============================================================================
+APPROACH 2 - WORD SEARCH FOR EVERY WORD
+===============================================================================
+
+For completeness, we can solve it by reusing
+the solution of LeetCode 79.
+
+
+===============================================================================
+CODE
+===============================================================================
+"""
+
+class Solution:
+
+    def findWords(self, board, words):
+
+        rows = len(board)
+        cols = len(board[0])
+
+        result = []
+
+        def exist(word):
+
+            def dfs(r, c, index):
+
+                if index == len(word):
+                    return True
+
+                if (
+                    r < 0 or
+                    r >= rows or
+                    c < 0 or
+                    c >= cols
+                ):
+                    return False
+
+                if board[r][c] != word[index]:
+                    return False
+
+                temp = board[r][c]
+                board[r][c] = "#"
+
+                found = (
+                    dfs(r + 1, c, index + 1) or
+                    dfs(r - 1, c, index + 1) or
+                    dfs(r, c + 1, index + 1) or
+                    dfs(r, c - 1, index + 1)
+                )
+
+                board[r][c] = temp
+
+                return found
+
+            for r in range(rows):
+
+                for c in range(cols):
+
+                    if dfs(r, c, 0):
+                        return True
+
+            return False
+
+
+        for word in words:
+
+            if exist(word):
+                result.append(word)
+
+        return result
+
+
+"""
+===============================================================================
+WHY TRIE IS BETTER
+===============================================================================
+
+Suppose:
+
+W = number of words
+L = average word length
+
+
+Running Word Search separately:
+
+roughly:
+
+O(W × M × N × 3^L)
+
+
+This can become very expensive.
+
+
+Trie combines common prefixes and allows us to prune
+branches that cannot form ANY given word.
+
+
+The Trie solution is therefore the standard optimized approach.
+
+
+===============================================================================
+COMPLEXITY - TRIE SOLUTION
+===============================================================================
+
+Let:
+
+M = rows
+N = columns
+L = maximum word length
+W = number of words
+T = total number of characters in all words
+
+
+Building Trie:
+
+O(T)
+
+
+DFS worst-case is exponential because we explore paths in the grid.
+
+A common upper-bound discussion is:
+
+O(M × N × 4^L)
+
+
+with Trie-based pruning making the practical search substantially better.
+
+
+Space:
+
+Trie:
+
+O(T)
+
+
+DFS recursion:
+
+O(L)
+
+
+Result:
+
+O(number of found words)
+
+
+Overall auxiliary space:
+
+O(T + L)
+
+
+excluding output.
+
+
+===============================================================================
+IMPORTANT NOTE ABOUT COMPLEXITY
+===============================================================================
+
+Unlike a simple BFS/DFS problem,
+
+Word Search II has an exponential worst-case search component.
+
+The Trie does NOT magically make the problem O(M × N).
+
+Its major benefit is:
+
+        PREFIX PRUNING
+
+
+If the current board path is not a prefix of any requested word,
+
+we stop immediately.
+
+
+===============================================================================
+OPTIMIZATION - REMOVE EMPTY TRIE NODES
+===============================================================================
+
+We can go one step further.
+
+
+After completely exploring a Trie node,
+
+if it has:
+
+    no children
+
+and:
+
+    no word
+
+
+we can delete that child from its parent.
+
+
+This prevents future DFS calls from entering a branch
+that can no longer produce any word.
+
+
+===============================================================================
+OPTIMIZED TRIE CODE
+===============================================================================
+"""
+
+class TrieNode:
+
+    def __init__(self):
+
+        self.children = {}
+
+        self.word = None
+
+
+class Solution:
+
+    def findWords(self, board, words):
+
+        root = TrieNode()
+
+        for word in words:
+
+            node = root
+
+            for ch in word:
+
+                if ch not in node.children:
+                    node.children[ch] = TrieNode()
+
+                node = node.children[ch]
+
+            node.word = word
+
+
+        rows = len(board)
+        cols = len(board[0])
+
+        result = []
+
+
+        def dfs(r, c, parent):
+
+            ch = board[r][c]
+
+            if ch not in parent.children:
+                return
+
+
+            node = parent.children[ch]
+
+
+            if node.word is not None:
+
+                result.append(node.word)
+
+                node.word = None
+
+
+            board[r][c] = "#"
+
+
+            if r > 0:
+                dfs(r - 1, c, node)
+
+            if r + 1 < rows:
+                dfs(r + 1, c, node)
+
+            if c > 0:
+                dfs(r, c - 1, node)
+
+            if c + 1 < cols:
+                dfs(r, c + 1, node)
+
+
+            board[r][c] = ch
+
+
+            # --------------------------------------------------------
+            # Remove useless Trie branch
+            # --------------------------------------------------------
+
+            if not node.children and node.word is None:
+
+                del parent.children[ch]
+
+
+        for r in range(rows):
+
+            for c in range(cols):
+
+                dfs(r, c, root)
+
+
+        return result
+
+
+"""
+===============================================================================
+WHY DELETE TRIE NODES?
+===============================================================================
+
+Suppose:
+
+Trie branch:
+
+a → b → c → "abc"
+
+
+We already found:
+
+"abc"
+
+
+and there are:
+
+NO other words using this branch.
+
+
+Then keeping:
+
+a → b → c
+
+
+is unnecessary.
+
+
+We can remove it.
+
+
+Future DFS:
+
+a → b
+
+
+will immediately fail because the branch is gone.
+
+
+This is an optimization called:
+
+TRIE PRUNING.
+
+
+===============================================================================
+COMMON MISTAKES
+===============================================================================
+
+1.
+
+Using a SET instead of Trie.
+
+
+A set can tell us:
+
+"Is this complete word present?"
+
+
+But during DFS we need to know:
+
+"Is this CURRENT PATH a prefix of ANY word?"
+
+
+Trie is perfect for that.
+
+
+--------------------------------------------------
+
+2.
+
+Forgetting duplicate prevention.
+
+
+Same word may be found through multiple paths.
+
+
+Use:
+
+node.word = None
+
+
+after finding it.
+
+
+--------------------------------------------------
+
+3.
+
+Not restoring the board.
+
+
+Wrong:
+
+board[r][c] = "#"
+
+
+and never restoring it.
+
+
+Correct:
+
+temp = board[r][c]
+
+board[r][c] = "#"
+
+DFS
+
+board[r][c] = temp
+
+
+--------------------------------------------------
+
+4.
+
+Allowing diagonal movement.
+
+
+Only 4 directions.
+
+
+--------------------------------------------------
+
+5.
+
+Using a cell more than once.
+
+
+Visited marking is mandatory.
+
+
+--------------------------------------------------
+
+6.
+
+Searching every word independently without understanding
+why Trie is useful.
+
+
+The main optimization is shared prefixes + prefix pruning.
+
+
+===============================================================================
+INTERVIEW TRICK
+===============================================================================
+
+Question says:
+
+"Find multiple words in a character grid."
+
+
+Immediately think:
+
+        TRIE
+
+
+Then:
+
+        DFS + Backtracking
+
+
+Mental pattern:
+
+WORDS
+
+  ↓
+
+TRIE
+
+  ↓
+
+EVERY BOARD CELL
+
+  ↓
+
+DFS
+
+  ↓
+
+FOLLOW TRIE
+
+  ↓
+
+NO CHILD?
+    ↓
+   STOP
+
+
+WORD FOUND?
+    ↓
+   ADD
+
+
+BACKTRACK
+
+
+===============================================================================
+10-SECOND MEMORY TRICK
+===============================================================================
+
+Word Search I:
+
+        ONE WORD
+           ↓
+       DFS + BT
+
+
+Word Search II:
+
+        MANY WORDS
+           ↓
+          TRIE
+           ↓
+      DFS + BT
+
+
+Core DFS:
+
+    ch = board[r][c]
+
+    if ch not in node.children:
+        return
+
+    node = node.children[ch]
+
+    if node.word:
+        add answer
+
+    mark visited
+
+    DFS 4 directions
+
+    restore
+
+
+===============================================================================
+FINAL TAKEAWAY
+===============================================================================
+
+The biggest difference between 79 and 212 is:
+
+79:
+
+We ask:
+
+    "Can this path make THIS ONE word?"
+
+
+212:
+
+We ask:
+
+    "Can this path make ANY word from my dictionary?"
+
+
+Trie answers the second question efficiently.
+
+
+Therefore:
+
+        MANY WORDS
+             ↓
+           TRIE
+             ↓
+        BOARD DFS
+             ↓
+      PREFIX PRUNING
+             ↓
+       BACKTRACKING
+
+
+===============================================================================
+FINAL COMPLEXITY
+===============================================================================
+
+Let:
+
+M = number of rows
+N = number of columns
+L = maximum word length
+T = total characters in all words
+
+
+Trie construction:
+
+O(T)
+
+
+Search:
+
+Worst-case exponential in L,
+with Trie providing strong prefix pruning.
+
+
+Space:
+
+O(T + L)
+
+
+excluding the output.
+
+
+===============================================================================
+"""
