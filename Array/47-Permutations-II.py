@@ -89,7 +89,7 @@ becomes:
 [1,1,2]
 
 
-Now duplicate values become adjacent.
+Now duplicate values become adjacent
 
 
 Then while choosing a number:
