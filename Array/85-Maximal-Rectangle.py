@@ -101,4 +101,4 @@ class Solution:
     #           Monotonic Stack
     #                    │
     #                    ▼
-    #              max area
+    #              max areas   
