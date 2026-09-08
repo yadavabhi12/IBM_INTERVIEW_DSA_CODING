@@ -45,7 +45,7 @@ class Solution:
 
 
 
-# 🏆 Final Code — Interview Version
+# 🏆  Final Code — Interview  Version 2
 class Solution:
     def maximalRectangle(self, matrix):
         if not matrix or not matrix[0]:
