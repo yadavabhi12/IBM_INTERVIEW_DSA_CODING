@@ -57,7 +57,7 @@ class Solution:
 
         for row in matrix:
 
-            # Convert current row into histogram
+            # Convert current row into histograms
             for c in range(n):
                 if row[c] == '1':
                     heights[c] += 1
