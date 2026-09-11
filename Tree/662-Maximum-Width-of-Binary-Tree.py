@@ -30,7 +30,7 @@ class Solution:
                 if _ == level_size - 1:
                     last = idx
 
-                # Add children
+                # Add children .
                 if node.left:
                     queue.append((node.left, 2 * idx + 1))
 
