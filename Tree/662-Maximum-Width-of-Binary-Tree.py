@@ -26,7 +26,7 @@ class Solution:
                 if _ == 0:
                     first = idx
 
-                # Last node of this level
+                # Last node of this level.
                 if _ == level_size - 1:
                     last = idx
 
