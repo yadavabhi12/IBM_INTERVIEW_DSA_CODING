@@ -22,7 +22,7 @@ class Solution:
                 # Normalize index
                 idx -= base
 
-                # First node of this level
+                # First node of this level.
                 if _ == 0:
                     first = idx
 
